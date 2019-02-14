@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdt
+  labels:
+    app: cdt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cdt
+  template:
+    metadata:
+      labels:
+        app: cdt
+    spec:
+      containers:
+      - name: cdt
+        image: pappisettydocker/cdt:3.1
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+          - name: input
+            mountPath: /home/input
+          - name: output
+            mountPath: /home/output
+      volumes:
+      - name: input
+        hostPath:
+          path: /C/input
+          type: DirectoryOrCreate
+      - name: output
+        hostPath:
+          path: /C/output
+          type: DirectoryOrCreate
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cdt
+  labels:
+    app: cdt
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 8081
+    nodePort: 30006
+  selector:
+    app: cdt
+  type: NodePort
